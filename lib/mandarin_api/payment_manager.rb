@@ -22,6 +22,30 @@ module MandarinApi
       perform(params, 'pay', :rebill_request_body)
     end
 
+    def perform_preauth(params)
+      perform(params, 'preauth', :charge_request_body)
+    end
+
+    def perform_confirmauth(params)
+      perform(params, 'pay', :confirm_auth_request_body)
+    end
+
+    def perform_reversal(params)
+      perform(params, 'reversal', :reversal_body)
+    end
+
+    def perform_rebill_preauth(params)
+      perform(params, 'preauth', :rebill_preauth)
+    end
+
+    def perform_rebill_confirmauth(params)
+      perform(params, 'pay', :confirm_auth_request_body)
+    end
+
+    def perform_rebill_reversal(params)
+      perform(params, 'reversal', :confirm_auth_request_body)
+    end
+
     private
 
     def perform(params, action, body)
@@ -37,7 +61,17 @@ module MandarinApi
         payment: payment(params, action),
         target: { card: params[:assigned_card_uuid] }
       }
-      body[:custom_values] = params[:custom_values] unless params[:custom_values].empty?
+      body[:custom_values] = params[:custom_values] if params[:custom_values].present?
+      body
+    end
+
+    def rebill_preauth(params, action)
+      body = {
+        payment: payment(params, action),
+        customer_info: { email: params[:email], phone: phone(params[:phone]) }
+        #target: { card: params[:assigned_card_uuid] }
+      }
+      body[:custom_values] = params[:custom_values] if params[:custom_values].present?
       body
     end
 
@@ -52,18 +86,38 @@ module MandarinApi
     end
 
     def refund_request_body(params, action)
-      body = {
-        payment: { order_id: params[:order_id], action: action },
-        target: { transaction: params[:transaction_uuid] }
+      {
+        payment: {
+          order_id: params[:order_id],
+          action: action,
+          price: params[:amount]
+        },
+        target: { transaction: params[:transaction_uuid] },
+        urls: params[:urls]
       }
-      body[:payment][:price] = params[:amount] if params[:amount]
-      body
     end
 
     def rebill_request_body(params, action)
       {
         payment: payment(params, action),
         target: { rebill: params[:transaction_uuid] }
+      }
+    end
+
+    def confirm_auth_request_body(params, action)
+      {
+        payment: payment(params, action),
+        target: { transaction: params[:transaction_uuid] },
+        customer_info: { email: params[:email], phone: phone(params[:phone]) },
+        urls: params[:urls]
+      }
+    end
+
+    def reversal_body(params, action)
+      {
+        payment: { action: action, order_id: params[:order_id] },
+        target: { transaction: params[:transaction_uuid] },
+        urls: params[:urls]
       }
     end
 

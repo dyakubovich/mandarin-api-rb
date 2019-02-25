@@ -37,14 +37,53 @@ module MandarinApi
     MandarinApi::PaymentManager.new.perform_payout params
   end
 
-  def self.refund(order_id, transaction_uuid, amount)
-    params = { order_id: order_id, transaction_uuid: transaction_uuid, amount: amount }
+  def self.refund(order_id, transaction_uuid, amount, urls)
+    params = {
+      order_id: order_id,
+      transaction_uuid: transaction_uuid,
+      amount: amount,
+      urls: urls
+    }
     MandarinApi::PaymentManager.new.perform_refund params
   end
 
   def self.rebill(order_id, amount, transaction_uuid)
     params = { order_id: order_id, amount: amount, transaction_uuid: transaction_uuid }
     MandarinApi::PaymentManager.new.perform_rebill params
+  end
+
+  def self.preauth(order_id, amount, user, extra = {})
+    params = {
+      order_id: order_id, amount: amount, email: user.email, phone: user.phone,
+      urls: extra[:urls], custom_values: extra[:custom_values]
+    }
+    MandarinApi::PaymentManager.new.perform_preauth params
+  end
+
+  def self.confirmauth(order_id, amount, user, transaction_uuid, urls = {})
+    params = {
+      order_id: order_id, amount: amount,
+      urls: urls,
+      email: user.email, phone: user.phone,
+      transaction_uuid: transaction_uuid
+    }
+    MandarinApi::PaymentManager.new.perform_confirmauth params
+  end
+
+  def self.reversal(order_id, transaction_uuid, urls = {})
+    params = {
+      order_id: order_id, urls: urls,
+      transaction_uuid: transaction_uuid
+    }
+    MandarinApi::PaymentManager.new.perform_reversal params
+  end
+
+  def self.perform_rebill_preauth(order_id, amount, user, assigned_card_uuid, extra = {})
+    params = {
+      order_id: order_id, amount: amount, email: user.email, phone: user.phone,
+      assigned_card_uuid: assigned_card_uuid, urls: extra[:urls]
+    }
+    MandarinApi::PaymentManager.new.perform_rebill_preauth params
   end
 
   def self.process_callback(request_params, response_handler)
