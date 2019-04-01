@@ -25,7 +25,7 @@ module MandarinApi
     params = {
       order_id: order_id, amount: amount, custom_values: custom_values,
       assigned_card_uuid: assigned_card_uuid
-      # urls: extra[:urls]
+      urls: extra[:urls]
     }
     MandarinApi::PaymentManager.new.perform_payment params
   end
