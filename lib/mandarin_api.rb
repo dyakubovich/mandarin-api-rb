@@ -74,9 +74,9 @@ module MandarinApi
     MandarinApi::PaymentManager.new.perform_confirmauth params
   end
 
-  def self.reversal(order_id, transaction_uuid, urls = {})
+  def self.reversal(order_id, customer_info, transaction_uuid, urls = {})
     params = {
-      order_id: order_id, urls: urls,
+      order_id: order_id, customer_info: customer_info, urls: urls,
       transaction_uuid: transaction_uuid
     }
     MandarinApi::PaymentManager.new.perform_reversal params

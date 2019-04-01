@@ -129,6 +129,7 @@ module MandarinApi
       {
         payment: { action: action, order_id: params[:order_id] },
         target: { transaction: params[:transaction_uuid] },
+        customer_info: { email: params[:email], phone: phone(params[:phone]) },
         urls: params[:urls]
       }
     end
