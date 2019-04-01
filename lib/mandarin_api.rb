@@ -25,14 +25,18 @@ module MandarinApi
     params = {
       order_id: order_id, amount: amount, custom_values: custom_values,
       assigned_card_uuid: assigned_card_uuid
+      # urls: extra[:urls]
     }
     MandarinApi::PaymentManager.new.perform_payment params
   end
 
-  def self.payout(order_id, amount, assigned_card_uuid, custom_values = [])
+
+  def self.payout(order_id, amount, assigned_card_uuid, customer_info, urls)
     params = {
-      order_id: order_id, amount: amount, assigned_card_uuid: assigned_card_uuid,
-      custom_values: custom_values
+      order_id: order_id, amount: amount,
+      assigned_card_uuid: assigned_card_uuid,
+      customer_info: customer_info,
+      urls: urls
     }
     MandarinApi::PaymentManager.new.perform_payout params
   end
