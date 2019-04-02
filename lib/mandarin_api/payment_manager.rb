@@ -7,7 +7,7 @@ module MandarinApi
     end
 
     def perform_payout(params)
-      perform(params, 'payout', :normal_request_body)
+      perform(params, 'payout', :normal_payout_body)
     end
 
     def perform_payment(params)
@@ -65,11 +65,23 @@ module MandarinApi
       body
     end
 
+    def normal_payout_body(params, action)
+      {
+        payment: {
+          order_id: params[:order_id],
+          action: action,
+          price: params[:amount]
+      },
+      target: { card: params[:assigned_card_uuid] },
+      customer_info: { email: params[:email] },
+      urls: params[:urls]
+      }
+    end
+
     def rebill_preauth(params, action)
       body = {
         payment: payment(params, action),
         customer_info: { email: params[:email], phone: phone(params[:phone]) }
-        #target: { card: params[:assigned_card_uuid] }
       }
       body[:custom_values] = params[:custom_values] if params[:custom_values].present?
       body
@@ -117,6 +129,7 @@ module MandarinApi
       {
         payment: { action: action, order_id: params[:order_id] },
         target: { transaction: params[:transaction_uuid] },
+        customer_info: { email: params[:email], phone: phone(params[:phone]) },
         urls: params[:urls]
       }
     end
